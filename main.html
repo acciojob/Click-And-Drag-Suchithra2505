@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="items">
+  <div class="item" id="item">
     <div class="item item1">1</div>
     <div class="item item2">2</div>
     <div class="item item3">3</div>
@@ -36,42 +36,41 @@
 
 <script>
 //Your code goes here 
-	const items = document.querySelector('.items');
-  let isDown = false;
-  let startX;
-  let scrollLeft;
+	let isDragging = false;
+let startX;
+let currentTranslate = 0;
 
-  items.addEventListener('mousedown', (e) => {
-    isDown = true;
-    startX = e.pageX - items.offsetLeft;
-    scrollLeft = items.scrollLeft;
-  });
+const item = document.getElementById('item');
 
-  items.addEventListener('mouseleave', () => {
-    isDown = false;
-  });
+item.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    startX = e.clientX - item.offsetLeft;
+    item.style.cursor = 'grabbing';
+});
 
-  items.addEventListener('mouseup', () => {
-    isDown = false;
-  });
+item.addEventListener('mouseup', () => {
+    isDragging = false;
+    item.style.cursor = 'grab';
+});
 
-  items.addEventListener('mousemove', (e) => {
-    if (!isDown) return;
-    e.preventDefault();
-    const x = e.pageX - items.offsetLeft;
-    const walk = (x - startX) * 2;
-    items.scrollLeft = scrollLeft - walk;
-  });
+item.addEventListener('mouseleave', () => {
+    isDragging = false;
+    item.style.cursor = 'grab';
+});
 
-  // Detect scroll event to check when scrolling is complete
-  items.addEventListener('scroll', () => {
-    if (!isDown) {
-      // Scrolling is complete
-      cy.get('.items').should($items => {
-        expect($items[0].scrollLeft).to.greaterThan(0);
-      });
-    }
-  });
+item.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    const x = e.clientX - item.offsetLeft;
+    const walk = (x - startX) * 2; // Adjust the sensitivity as needed
+    currentTranslate += walk;
+    item.style.transform = `translateX(${currentTranslate}px)`;
+});
+
+// Prevent text selection during dragging
+document.onselectstart = function() {
+    return !isDragging;
+};
+
 	 
 </script>
 
